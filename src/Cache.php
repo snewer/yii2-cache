@@ -4,6 +4,7 @@ namespace snewer\cache;
 
 use Yii;
 use yii\base\Component;
+use yii\base\InvalidConfigException;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -20,11 +21,16 @@ class Cache extends Component implements CacheInterface
     public $baseCache = 'cache';
 
     /**
-     * @return \yii\caching\Cache
+     * @throws InvalidConfigException
+     * @return \yii\caching\CacheInterface
      */
     protected function _getBaseCache()
     {
-        return Yii::$app->get($this->baseCache, true);
+        $component = Yii::$app->get($this->baseCache, true);
+        if (!$component instanceof \yii\caching\Cache) {
+            throw new InvalidConfigException('Component \'' . $this->baseCache . '\' must implement \yii\caching\CacheInterface interface.');
+        }
+        return $component;
     }
 
     /**
